@@ -55,9 +55,9 @@ public class ConnectFourView extends View {
 
     private int isGameOver;
 
-    public ConnectFourView(Context context) {
+    public ConnectFourView(Context context, int bWidth, int bHeight) {
         super(context);
-        this.game =  new ConnectFour(7, 7, -1);
+        this.game =  new ConnectFour(bWidth, bHeight, -1);
         this.gridWidth = this.game.boardWidth;
         this.gridHeight = this.game.boardHeight;
 
@@ -241,7 +241,7 @@ public class ConnectFourView extends View {
         // Check if Game is Over
         if(this.isGameOver > 0) {
             canvas.restore();
-            canvas.drawRect(0, this.cellSize, this.gridDrawWidth, this.gridDrawHeight + this.cellSize, this.messageBoxPaint);
+            canvas.drawRect(0, 0, this.gridDrawWidth, this.gridDrawHeight + 2*this.cellSize, this.messageBoxPaint);
             if(this.isGameOver == 3) {
                 canvas.drawText("DRAW", Math.round(this.gridDrawWidth/2), Math.round(this.gridDrawHeight/2 + this.cellSize), this.messageTextPaint);
             } else if (this.isGameOver < 3) {

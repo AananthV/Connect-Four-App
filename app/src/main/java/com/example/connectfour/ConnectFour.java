@@ -99,7 +99,7 @@ public class ConnectFour {
         count = 0;
         i = x;
         j = y;
-        while (i < this.boardWidth && j < this.boardHeight && this.board[i][j] == num) {
+        while (i < this.boardHeight && j < this.boardWidth && this.board[i][j] == num) {
             count++;
             i++;
             j++;
@@ -118,14 +118,14 @@ public class ConnectFour {
         count = 0;
         i = x;
         j = y;
-        while (i < this.boardWidth && j >= 0 && this.board[i][j] == num) {
+        while (i < this.boardHeight && j >= 0 && this.board[i][j] == num) {
             count++;
             i++;
             j--;
         }
         i = x - 1;
         j = y + 1;
-        while (i >= 0 && j < this.boardHeight && this.board[i][j] == num) {
+        while (i >= 0 && j < this.boardWidth && this.board[i][j] == num) {
             count++;
             i--;
             j++;
@@ -134,9 +134,5 @@ public class ConnectFour {
             return true;
 
         return false;
-    }
-
-    public int[][] getBoard() {
-        return this.board;
     }
 }
