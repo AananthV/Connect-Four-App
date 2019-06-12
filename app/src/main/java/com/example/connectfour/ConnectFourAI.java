@@ -1,6 +1,8 @@
 package com.example.connectfour;
 
-import android.util.Log;
+/*
+    Uses a Min Max Algorithm along with AlphaBeta pruning to determine the move.
+ */
 
 public class ConnectFourAI {
     private int difficulty;

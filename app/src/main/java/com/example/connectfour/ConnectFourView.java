@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Region;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -37,6 +38,8 @@ public class ConnectFourView extends View {
     private Paint messageTextPaint;
     private Paint messageSubTextPaint;
     private Paint playerIndicatorTextPaint;
+
+    private MediaPlayer soundPlayer;
 
     private int gridWidth;
     private int gridDrawWidth;
@@ -95,6 +98,8 @@ public class ConnectFourView extends View {
         Log.v("BotLevel", "" + botLevel);
         this.numMoves = 0;
 
+        this.soundPlayer = MediaPlayer.create(getContext(), R.raw.blop);
+
         this.backgroundPaint = new Paint();
         this.backgroundPaint.setColor(canvasBackgroundColor);
         this.backgroundPaint.setStyle(Paint.Style.FILL);
@@ -139,11 +144,6 @@ public class ConnectFourView extends View {
         this.invalidate();
     }
 
-    private void makeMove() {
-        int move = this.bot.getMove(this.game);
-        this.playMove((move + 0.5f) * this.cellSize);
-    }
-
     private void updateMove() {
         int result = this.game.playMove(this.moveX);
         this.numMoves++;
@@ -152,12 +152,14 @@ public class ConnectFourView extends View {
         } else if (this.game.isFull()) {
             this.isGameOver = 3;
         }
+        this.soundPlayer.start();
         this.invalidate();
     }
 
     public void playMove(float x) {
         if(this.isGameOver > 0) {
             this.isGameOver = 0;
+            this.numMoves = 0;
             this.invalidate();
             return;
         }
