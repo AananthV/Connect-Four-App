@@ -74,6 +74,7 @@ public class ConnectFourView extends View {
         @Override
         protected void onPostExecute(String result) {
             moveInProgress = false;
+            Log.v("Move", "" + move);
             playMove((move + 0.5f) * cellSize);
         }
 

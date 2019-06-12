@@ -11,10 +11,10 @@ public class ConnectFourAI {
     private class State {
         public int action;
         public ConnectFour game;
-        public int score;
+        public double score;
         public int depth;
 
-        public State(int action, ConnectFour game, int score, int depth) {
+        public State(int action, ConnectFour game, double score, int depth) {
             this.action = action;
             this.game = game;
             this.score = score;
@@ -28,14 +28,14 @@ public class ConnectFourAI {
     }
 
     public int getMove(ConnectFour game) {
-        boolean maxPlayer = (this.playerNumber == 2);
+        boolean maxPlayer = (this.playerNumber == 1);
         State result = this.alphabeta(new State(0, game, 0, 0), 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, maxPlayer);
         return result.action;
     }
 
     private State alphabeta(State state, int depth, double alpha, double beta, boolean maxPlayer) {
-        if(depth == this.difficulty || state.game.winner != 0) {
-            return new State(state.action, state.game, state.game.getScore(playerNumber), state.depth);
+        if(depth == this.difficulty || state.game.winner != 0 || state.game.isFull()) {
+            return new State(state.action, state.game, state.game.getScore(), state.depth);
         }
 
         if(maxPlayer) {
@@ -47,9 +47,9 @@ public class ConnectFourAI {
                 if(state.game.isPlayable(col)) {
                     ConnectFour newGame = new ConnectFour(state.game.board, state.game.boardWidth, state.game.boardHeight, state.game.numMoves, state.game.isSinglePlayer);
                     newGame.playMove(col);
-                    State nextState = this.alphabeta(new State(col, newGame, 0, depth + 1), depth, alpha, beta, false);
+                    State nextState = this.alphabeta(new State(col, newGame, 0, depth + 1), depth + 1, alpha, beta, false);
 
-                    int score = nextState.score;
+                    double score = nextState.score;
                     if (bestAction == -1 || score >= highestScore) {
                         if (score == highestScore) {
                             if (nextState.depth > deepestDepth) {
@@ -84,7 +84,7 @@ public class ConnectFourAI {
                     newGame.playMove(col);
                     State nextState = this.alphabeta(new State(col, newGame, 0, depth + 1), depth + 1, alpha, beta, true);
 
-                    int score = nextState.score;
+                    double score = nextState.score;
                     if (bestAction == -1 || score <= smallestScore) {
                         if (score == smallestScore) {
                             if (nextState.depth > deepestDepth) {

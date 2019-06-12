@@ -92,18 +92,104 @@ public class ConnectFour {
         return this.numMoves == this.boardHeight*this.boardWidth;
     }
 
-    public int getScore(int playerNum) {
-        int score = 0;
-        for(int row = 0; row < this.boardHeight; row++) {
-            for(int col = 0; col < this.boardWidth; col++) {
-                if(isConnected(row, col, playerNum)) {
-                    score++;
-                } else if (isConnected(row, col, playerNum % 2 + 1)) {
-                    score--;
-                }
+    private void updatePlayerLines(int[] player1lines, int[] player2lines, int[] line) {
+        if(line[0] > 0 && line[1] > 0) {
+            line[2] = 0;
+        }
+        if(line[2] == 1) {
+            if(line[0] > 0) {
+                player1lines[line[0] - 1]++;
+            }
+            if(line[1] > 0) {
+                player2lines[line[1] - 1]++;
             }
         }
-        return score;
+    }
+
+    public double getScore() {
+        int[] player1lines = {0, 0, 0, 0};
+        int[] player2lines = {0, 0, 0, 0};
+        for(int row = 0; row < this.boardHeight; row++) {
+            for(int col = 0; col < this.boardWidth; col++) {
+
+                int[] lineRight = {0, 0, 1};
+                int[] lineDown = {0, 0, 1};
+                int[] lineDownLeft = {0, 0, 1};
+                int[] lineDownRight = {0, 0, 1};
+
+                for(int i = 0; i < 4; i++) {
+
+                    // Right
+                    if(col + 3 < this.boardWidth) {
+                        if(this.board[row][col+i] == 1) {
+                            lineRight[0]++;
+                        } else if (this.board[row][col+i] == 2) {
+                            lineRight[1]++;
+                        }
+                    } else {
+                        lineRight[2] = 0;
+                    }
+
+                    // Down and diagonals
+                    if(row + 3 < this.boardHeight) {
+                        // Down
+                        if(this.board[row + i][col] == 1) {
+                            lineDown[0]++;
+                        } else if (this.board[row + 1][col] == 2) {
+                            lineDown[1]++;
+                        }
+
+                        // Down Left
+                        if(col - 3 >= 0) {
+                            if(this.board[row + i][col - i] == 1) {
+                                lineDownLeft[0]++;
+                            } else if (this.board[row + i][col - i] == 2) {
+                                lineDownLeft[1]++;
+                            }
+                        } else {
+                            lineDownLeft[2] = 0;
+                        }
+
+                        // DOwn Right
+                        if(col + 3 < this.boardWidth) {
+                            if(this.board[row + i][col + i] == 1) {
+                                lineDownRight[0]++;
+                            } else if (this.board[row + i][col + i] == 2) {
+                                lineDownRight[1]++;
+                            }
+                        } else {
+                            lineDownRight[2] = 0;
+                        }
+                    } else {
+                        lineDown[2] = 0;
+                        lineDownLeft[2] = 0;
+                        lineDownRight[2] = 0;
+                    }
+                }
+
+                updatePlayerLines(player1lines, player2lines, lineDown);
+                updatePlayerLines(player1lines, player2lines, lineRight);
+                updatePlayerLines(player1lines, player2lines, lineDownRight);
+                updatePlayerLines(player1lines, player2lines, lineDownLeft);
+            }
+        }
+
+        if(player1lines[3] > 0) {
+            return Double.POSITIVE_INFINITY;
+        }
+        if(player2lines[3] > 0) {
+            return Double.NEGATIVE_INFINITY;
+        }
+
+        double player1Score = 0;
+        double player2Score = 0;
+
+        for(int i = 0; i < 4; i++) {
+            player1Score += Math.pow(10*i, i) * player1lines[i];
+            player2Score -= Math.pow(10*i, i) * player2lines[i];
+        }
+
+        return player1Score + player2Score;
     }
 
     public boolean isConnected(int x, int y, int num) {

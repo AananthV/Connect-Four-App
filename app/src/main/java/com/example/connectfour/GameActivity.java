@@ -31,7 +31,7 @@ public class GameActivity extends AppCompatActivity {
 
         this.boardHeight = this.mPreferences.getInt("boardHeight", 6);
         this.boardWidth = this.mPreferences.getInt("boardWidth", 7);
-        this.botLevel = this.mPreferences.getInt("botLevel", 5);
+        this.botLevel = this.mPreferences.getInt("botLevel", 3);
 
         this.c4view = new ConnectFourView(getApplicationContext(), this.boardWidth, this.boardHeight, this.isSinglePlayer, this.botLevel);
         LinearLayout main_layout = (LinearLayout) findViewById(R.id.main_layout);

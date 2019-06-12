@@ -17,9 +17,9 @@ public class Settings extends AppCompatActivity {
     private int botLevel;
 
     private static final int maxDimension = 9;
-    private static final int minDimension = 4;
+    private static final int minDimension = 9;
     private static final int minBotLevel = 1;
-    private static final int maxBotLevel = 10;
+    private static final int maxBotLevel = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class Settings extends AppCompatActivity {
 
         this.boardHeight = this.mPreferences.getInt("boardHeight", 6);
         this.boardWidth = this.mPreferences.getInt("boardWidth", 7);
-        this.botLevel = this.mPreferences.getInt("botLevel", 5);
+        this.botLevel = this.mPreferences.getInt("botLevel", 3);
 
         this.displayHeight();
         this.displayWidth();
