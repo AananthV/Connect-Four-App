@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Region;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public class ConnectFourView extends View {
     private ConnectFour game;
+    private ConnectFourAI bot;
 
     private static final int canvasBackgroundColor = 0xFFEAEAEA;
     private static final int gridColor = Color.BLACK;
@@ -46,20 +48,52 @@ public class ConnectFourView extends View {
     private static final float cellBorderSize = 0.1f; // Relative to a cell
 
     private boolean previewAvailable;
-    private boolean moveInProgress;
+    public boolean moveInProgress;
     private int previewX;
     private int previewY;
 
     private int moveX;
     private int moveY;
+    private int numMoves;
 
     private int isGameOver;
+    private boolean isSinglePlayer;
+    private int singlePlayerCounter;
 
-    public ConnectFourView(Context context, int bWidth, int bHeight) {
+    private class MakeMove extends AsyncTask<String, Void, String> {
+        private int move;
+        @Override
+        protected String doInBackground(String... params) {
+            this.move = bot.getMove(game);
+            return "" + this.move;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            moveInProgress = false;
+            playMove((move + 0.5f) * cellSize);
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+    public ConnectFourView(Context context, int bWidth, int bHeight, boolean isSinglePlayer, int botLevel) {
         super(context);
-        this.game =  new ConnectFour(bWidth, bHeight, -1);
+        this.game =  new ConnectFour(bWidth, bHeight, isSinglePlayer);
         this.gridWidth = this.game.boardWidth;
         this.gridHeight = this.game.boardHeight;
+        this.isSinglePlayer = isSinglePlayer;
+        if(this.isSinglePlayer) {
+            this.bot = new ConnectFourAI(botLevel, 2);
+        }
+        Log.v("BotLevel", "" + botLevel);
+        this.numMoves = 0;
 
         this.backgroundPaint = new Paint();
         this.backgroundPaint.setColor(canvasBackgroundColor);
@@ -105,16 +139,23 @@ public class ConnectFourView extends View {
         this.invalidate();
     }
 
+    private void makeMove() {
+        int move = this.bot.getMove(this.game);
+        this.playMove((move + 0.5f) * this.cellSize);
+    }
+
     private void updateMove() {
         int result = this.game.playMove(this.moveX);
+        this.numMoves++;
         if(result > 0) {
             this.isGameOver = result;
         } else if (this.game.isFull()) {
             this.isGameOver = 3;
         }
+        this.invalidate();
     }
 
-    public void playMove(float x, float y) {
+    public void playMove(float x) {
         if(this.isGameOver > 0) {
             this.isGameOver = 0;
             this.invalidate();
@@ -127,6 +168,7 @@ public class ConnectFourView extends View {
         this.previewY = Math.round(1.5f * this.cellSize);
         this.moveInProgress = true;
         this.previewAvailable = true;
+        this.singlePlayerCounter = 0;
         this.invalidate();
     }
 
@@ -138,7 +180,16 @@ public class ConnectFourView extends View {
     public void reset() {
         this.game.resetGame();
         this.isGameOver = 0;
+        this.numMoves = 0;
         this.invalidate();
+    }
+
+    public static String repeatString(String val, int count){
+        StringBuilder buf = new StringBuilder(val.length() * count);
+        while (count-- > 0) {
+            buf.append(val);
+        }
+        return buf.toString();
     }
 
     @Override
@@ -178,7 +229,15 @@ public class ConnectFourView extends View {
                 playerIndicatorRadius,
                 this.circlePaints[this.game.numMoves % 2 + 1]
         );
-        canvas.drawText("Player " + (this.game.numMoves % 2 + 1), Math.round(this.gridDrawWidth/2), Math.round(this.cellSize/2) + playerIndicatorTextSize/3, playerIndicatorTextPaint);
+        if(!this.isSinglePlayer) {
+            canvas.drawText("Player " + (this.game.numMoves % 2 + 1), Math.round(this.gridDrawWidth/2), Math.round(this.cellSize/2) + playerIndicatorTextSize/3, playerIndicatorTextPaint);
+        } else {
+            if(this.numMoves % 2 == 0) {
+                canvas.drawText("Player", Math.round(this.gridDrawWidth/2), Math.round(this.cellSize/2) + playerIndicatorTextSize/3, playerIndicatorTextPaint);
+            } else {
+                canvas.drawText("CPU" + this.repeatString(".", (int) (this.singlePlayerCounter++/10) % 3), Math.round(this.gridDrawWidth/2), Math.round(this.cellSize/2) + playerIndicatorTextSize/3, playerIndicatorTextPaint);
+            }
+        }
 
 
         // Draw Circles
@@ -246,32 +305,40 @@ public class ConnectFourView extends View {
                 canvas.drawText("DRAW", Math.round(this.gridDrawWidth/2), Math.round(this.gridDrawHeight/2 + this.cellSize), this.messageTextPaint);
             } else if (this.isGameOver < 3) {
                 canvas.drawCircle(
-                        Math.round(this.gridDrawWidth/2),
-                        Math.round(this.gridDrawHeight/2 - this.cellSize/2),
-                        Math.round(this.cellSize*(cellCircleSize + cellBorderSize)),
+                        Math.round(this.gridDrawWidth / 2),
+                        Math.round(this.gridDrawHeight / 2 - this.cellSize / 2),
+                        Math.round(this.cellSize * (cellCircleSize + cellBorderSize)),
                         gridPaint
                 );
                 canvas.drawCircle(
-                        Math.round(this.gridDrawWidth/2),
-                        Math.round(this.gridDrawHeight/2 - this.cellSize/2),
-                        Math.round(this.cellSize*(cellCircleSize)),
+                        Math.round(this.gridDrawWidth / 2),
+                        Math.round(this.gridDrawHeight / 2 - this.cellSize / 2),
+                        Math.round(this.cellSize * (cellCircleSize)),
                         this.circlePaints[this.isGameOver]
                 );
-                canvas.drawText("WINS", Math.round(this.gridDrawWidth/2), Math.round(this.gridDrawHeight/2 + this.cellSize*2.5), this.messageTextPaint);
-                canvas.drawText("Click to start New Game", Math.round(this.gridDrawWidth/2), Math.round(this.gridDrawHeight/2 + this.cellSize*4), this.messageSubTextPaint);
+                canvas.drawText("WINS", Math.round(this.gridDrawWidth / 2), Math.round(this.gridDrawHeight / 2 + this.cellSize * 2.5), this.messageTextPaint);
             }
+            canvas.drawText("Click to start New Game", Math.round(this.gridDrawWidth/2), Math.round(this.gridDrawHeight/2 + this.cellSize*4), this.messageSubTextPaint);
             this.game.resetGame();
         }
 
-        Log.v("P", this.previewAvailable + " " + this.moveInProgress);
         if(this.moveInProgress && this.previewAvailable) {
             this.previewY+=25;
             if(this.previewY >= (this.moveY+2.5f)*this.cellSize) {
+                this.updateMove();
                 this.moveInProgress = false;
                 this.previewAvailable = false;
-                this.updateMove();
             }
+        }
+
+        if(this.moveInProgress) {
             this.invalidate();
+        }
+
+        if(!(this.moveInProgress || this.previewAvailable) && this.isSinglePlayer && this.numMoves % 2 == 1) {
+            this.moveInProgress = true;
+            MakeMove move = new MakeMove();
+            move.execute();
         }
     }
 }

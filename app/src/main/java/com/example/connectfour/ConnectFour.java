@@ -1,5 +1,6 @@
 package com.example.connectfour;
 
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -13,21 +14,39 @@ public class ConnectFour {
     public int[][] board;
     private ArrayList<ArrayList<Integer>> moves;
     public int numMoves;
-    private int numUndos;
+    public int winner;
+    public boolean isSinglePlayer;
 
-    public ConnectFour(int bWidth, int bHeight, int nUndos) {
+    public ConnectFour(int bWidth, int bHeight, boolean isSinglePlayer) {
         this.boardWidth = bWidth;
         this.boardHeight = bHeight;
-        this.numUndos = nUndos;
+        this.isSinglePlayer = isSinglePlayer;
         this.board = new int[this.boardHeight][this.boardWidth];
         this.moves = new ArrayList<>();
         this.numMoves = 0;
+        this.winner = 0;
+    }
+
+    public ConnectFour(int[][] board, int bWidth, int bHeight, int numMoves, boolean isSinglePlayer) {
+        this.boardWidth = bWidth;
+        this.boardHeight = bHeight;
+        this.board = new int[this.boardHeight][this.boardWidth];
+        for(int row = 0; row < this.boardHeight; row++) {
+            for(int col = 0; col < this.boardWidth; col++) {
+                this.board[row][col] = board[row][col];
+            }
+        }
+        this.isSinglePlayer = isSinglePlayer;
+        this.moves = new ArrayList<>();
+        this.numMoves = numMoves;
+        this.winner = 0;
     }
 
     public void resetGame() {
         this.board = new int[this.boardHeight][this.boardWidth];
         this.moves = new ArrayList<>();
         this.numMoves = 0;
+        this.winner = 0;
     }
 
     public void undoMove() {
@@ -35,10 +54,15 @@ public class ConnectFour {
             this.numMoves--;
             this.board[this.moves.get(numMoves).get(0)][this.moves.get(numMoves).get(1)] = 0;
             this.moves.remove(numMoves);
+            if(this.isSinglePlayer) {
+                this.numMoves--;
+                this.board[this.moves.get(numMoves).get(0)][this.moves.get(numMoves).get(1)] = 0;
+                this.moves.remove(numMoves);
+            }
         }
     }
 
-    private boolean isPlayable(int column) {
+    public boolean isPlayable(int column) {
         return this.board[0][column] == 0;
     }
 
@@ -56,8 +80,9 @@ public class ConnectFour {
             this.numMoves++;
             this.moves.add(new ArrayList<Integer>(Arrays.asList(i-1, column)));
 
-            if(isConnected(i-1, column)) {
-                return (this.numMoves-1) % 2 + 1;
+            if(isConnected(i-1, column, -1)) {
+                this.winner = (this.numMoves - 1) % 2 + 1;
+                return this.winner;
             };
         }
         return 0;
@@ -67,8 +92,24 @@ public class ConnectFour {
         return this.numMoves == this.boardHeight*this.boardWidth;
     }
 
-    public boolean isConnected(int x, int y) {
-        int num = this.board[x][y];
+    public int getScore(int playerNum) {
+        int score = 0;
+        for(int row = 0; row < this.boardHeight; row++) {
+            for(int col = 0; col < this.boardWidth; col++) {
+                if(isConnected(row, col, playerNum)) {
+                    score++;
+                } else if (isConnected(row, col, playerNum % 2 + 1)) {
+                    score--;
+                }
+            }
+        }
+        return score;
+    }
+
+    public boolean isConnected(int x, int y, int num) {
+        if(num == -1) {
+            num = board[x][y];
+        }
         int count = 0;
         int i = y;
 

@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".Settings"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:gravity="center">
 
     <TextView
         android:layout_width="match_parent"
@@ -23,12 +24,14 @@
         android:layout_gravity="center_horizontal"
         android:textSize="24dp"
         android:textAllCaps="true"
-        android:text="Grid Size"/>
+        android:text="Grid Size"
+        android:layout_marginBottom="8dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="16dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -115,6 +118,44 @@
 
             </LinearLayout>
         </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="24dp"
+        android:textAllCaps="true"
+        android:text="Bot Level"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="-"
+            android:onClick="decreaseBotLevel"/>
+
+        <TextView
+            android:id="@+id/bot_level_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="#000000"
+            android:padding="8dp"
+            />
+
+
+        <Button
+            android:layout_height="48dp"
+            android:layout_width="48dp"
+            android:text="+"
+            android:onClick="increaseBotLevel"/>
+
     </LinearLayout>
 
     <Button

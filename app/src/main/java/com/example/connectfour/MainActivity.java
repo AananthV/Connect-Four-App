@@ -14,6 +14,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+    public void launchSingleplayerGame(View view) {
+        Intent singleplayerGame = new Intent(getApplicationContext(), GameActivity.class);
+        singleplayerGame.putExtra("isSinglePlayer", true);
+        startActivity(singleplayerGame);
+    }
+
     public void launchMultiplayerGame(View view) {
         Intent multiplayerGame = new Intent(getApplicationContext(), GameActivity.class);
         startActivity(multiplayerGame);
