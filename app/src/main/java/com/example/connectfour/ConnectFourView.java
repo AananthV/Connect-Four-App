@@ -338,7 +338,7 @@ public class ConnectFourView extends View {
             this.invalidate();
         }
 
-        if(!(this.moveInProgress || this.previewAvailable) && this.isSinglePlayer && this.numMoves % 2 == 1) {
+        if(this.isGameOver == 0 && !(this.moveInProgress || this.previewAvailable) && this.isSinglePlayer && this.numMoves % 2 == 1) {
             this.moveInProgress = true;
             MakeMove move = new MakeMove();
             move.execute();
