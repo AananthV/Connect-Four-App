@@ -19,7 +19,7 @@ public class Settings extends AppCompatActivity {
     private static final int maxDimension = 9;
     private static final int minDimension = 9;
     private static final int minBotLevel = 1;
-    private static final int maxBotLevel = 5;
+    private static final int maxBotLevel = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +99,7 @@ public class Settings extends AppCompatActivity {
 
     public void decreaseBotLevel(View view) {
         if(this.botLevel <= minBotLevel) {
-            this.botLevel = maxBotLevel;
+            this.botLevel = minBotLevel;
         } else {
             this.botLevel--;
         }
